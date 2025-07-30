@@ -193,7 +193,7 @@ echo "<IP-D0-LOAD-BALANCER>> grafana.desafio-globo prometheus.desafio-globo aler
 
 ---
 
-## Para destruir tudo
+## Para excluir os recursos criados na Azure
 
 ```bash
 make terraform-destroy
