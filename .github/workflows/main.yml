@@ -17,7 +17,6 @@ env:
 jobs:
   cluster:
     runs-on: ubuntu-latest
-    needs: infra
     steps:
       - name: Azure Login
         uses: azure/login@v1
