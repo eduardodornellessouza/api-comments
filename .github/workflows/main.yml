@@ -14,10 +14,21 @@ env:
   HELM_RELEASE: api-comments
   OBS_NAMESPACE: monitoring
 
+  # Flags de controle de execução
+  RUN_DOCKER: false
+  RUN_INFRA: false
+  RUN_CLUSTER: true
+  RUN_INGRESS: true
+  RUN_MONITORING: true
+  RUN_LOGS: true
+  RUN_APP: true
+
 jobs:
   docker:
+    if: env.RUN_DOCKER == 'true'
     runs-on: ubuntu-latest
     environment: dockerhub
+
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +40,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build e push da imagem
+      - name: Build e push imagem Docker
         uses: docker/build-push-action@v5
         with:
           context: ./api
@@ -39,12 +50,15 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:latest
 
   infra:
-    runs-on: ubuntu-latest
+    if: env.RUN_INFRA == 'true'
     needs: docker
+    runs-on: ubuntu-latest
+    environment: dockerhub
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Azure Login
+      - name: Login na Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -56,7 +70,7 @@ jobs:
           echo "ARM_SUBSCRIPTION_ID=${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}" >> $GITHUB_ENV
           echo "ARM_TENANT_ID=${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}" >> $GITHUB_ENV
 
-      - name: Terraform Setup
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.8.5
@@ -65,7 +79,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform init -input=false
 
-      - name: Terraform Plan (salvando em arquivo)
+      - name: Terraform Plan
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform plan -out=tfplan
 
@@ -74,22 +88,21 @@ jobs:
         run: |
           mkdir -p ../plan-artifacts
           cp tfplan ../plan-artifacts/
-          echo "Plano de execução salvo."
 
-      - name: Upload do tfplan como artefato
+      - name: Upload do tfplan
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
           path: ./plan-artifacts/tfplan
-
 
       - name: Terraform Apply
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform apply -auto-approve
 
   cluster:
-    runs-on: ubuntu-latest
+    if: env.RUN_CLUSTER == 'true'
     needs: infra
+    runs-on: ubuntu-latest
     steps:
       - name: Azure Login
         uses: azure/login@v1
@@ -102,12 +115,13 @@ jobs:
           kubectl get nodes
 
   ingress:
-    runs-on: ubuntu-latest
+    if: env.RUN_INGRESS == 'true'
     needs: cluster
+    runs-on: ubuntu-latest
     steps:
       - name: Instalar ingress NGINX
         run: |
-          https://kubernetes.github.io/ingress-nginx || true
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
           helm repo update
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx \
@@ -124,8 +138,9 @@ jobs:
             --timeout=120s
 
   monitoring:
-    runs-on: ubuntu-latest
+    if: env.RUN_MONITORING == 'true'
     needs: ingress
+    runs-on: ubuntu-latest
     steps:
       - name: Instalar Prometheus/Grafana
         run: |
@@ -138,8 +153,9 @@ jobs:
             --wait
 
   logs:
-    runs-on: ubuntu-latest
+    if: env.RUN_LOGS == 'true'
     needs: monitoring
+    runs-on: ubuntu-latest
     steps:
       - name: Instalar Loki/Promtail
         run: |
@@ -151,8 +167,9 @@ jobs:
             --wait
 
   app:
-    runs-on: ubuntu-latest
+    if: env.RUN_APP == 'true'
     needs: logs
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy da aplicação via Helm
         run: |
