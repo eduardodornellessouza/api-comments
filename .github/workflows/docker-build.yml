@@ -107,7 +107,7 @@ jobs:
     steps:
       - name: Instalar ingress NGINX
         run: |
-          helm repo add ingress-nginx https://kubernetes.github.io/helm-charts || true
+          https://kubernetes.github.io/ingress-nginx || true
           helm repo update
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx \
