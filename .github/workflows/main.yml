@@ -18,6 +18,11 @@ jobs:
   cluster:
     runs-on: ubuntu-latest
     steps:
+      - name: Lista Arquivos
+        run: |
+          ls -la
+          tree
+
       - name: Azure Login
         uses: azure/login@v1
         with:
