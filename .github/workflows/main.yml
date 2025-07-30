@@ -28,10 +28,6 @@ jobs:
           az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --overwrite-existing
           kubectl get nodes
 
-  ingress:
-    runs-on: ubuntu-latest
-    needs: cluster
-    steps:
       - name: Instalar ingress NGINX
         run: |
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
@@ -50,10 +46,6 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=120s
 
-  monitoring:
-    runs-on: ubuntu-latest
-    needs: ingress
-    steps:
       - name: Instalar Prometheus/Grafana
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
@@ -64,10 +56,6 @@ jobs:
             --values ./monitoring/monitoring-values.yaml \
             --wait
 
-  logs:
-    runs-on: ubuntu-latest
-    needs: monitoring
-    steps:
       - name: Instalar Loki/Promtail
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts || true
@@ -77,10 +65,6 @@ jobs:
             --values ./monitoring/loki-values.yaml \
             --wait
 
-  app:
-    runs-on: ubuntu-latest
-    needs: logs
-    steps:
       - name: Deploy da aplicação via Helm
         run: |
           helm upgrade --install ${{ env.HELM_RELEASE }} ${{ env.HELM_CHART }} \
