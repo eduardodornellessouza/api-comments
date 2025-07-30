@@ -40,7 +40,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 ## Acesso da aplicação local (dev)
 
 ```bash
-http://localhost:3000/docs
+http://localhost:3000/swagger
 ```
 
 ---
@@ -64,7 +64,7 @@ az storage account create \
   --access-tier Hot
 ```
 
-### 3. Criar container para o estado
+### 3. Criar container para armazenar o estado do terraform
 
 ```bash
 az storage container create \
@@ -84,8 +84,13 @@ cd terraform
 terraform init
 terraform plan
 terraform apply -auto-approve
+```
 
-terraform output ingress_public_ip
+---
+
+## Conectar no cluster e listar os nós - atualizar o kubeconfig local
+
+```bash
 
 az aks get-credentials --resource-group rg-api-comments --name aks-api-comments --overwrite-existing
 kubectl get nodes
@@ -93,7 +98,7 @@ kubectl get nodes
 
 ---
 
-## Instalar Ingress NGINX
+## Instalar Ingress NGINX - LB do cluster para receber requisições externas
 
 ```bash
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -142,7 +147,7 @@ helm upgrade --install loki grafana/loki-stack \
 
 ---
 
-## Instalar a aplicação
+## Instalar a aplicação api-comments
 
 ```bash
 PUBLIC_IP=$(terraform output -raw ingress_public_ip)
@@ -183,7 +188,7 @@ make install-app
 ## Incluir IP público no `/etc/hosts`
 
 ```bash
-echo "74.163.120.30 grafana.desafio-globo prometheus.desafio-globo alertmanager.desafio-globo loki.desafio-globo api-comments.desafio-globo" | sudo tee -a /etc/hosts
+echo "<IP-D0-LOAD-BALANCER>> grafana.desafio-globo prometheus.desafio-globo alertmanager.desafio-globo loki.desafio-globo api-comments.desafio-globo" | sudo tee -a /etc/hosts
 ```
 
 ---
@@ -191,5 +196,5 @@ echo "74.163.120.30 grafana.desafio-globo prometheus.desafio-globo alertmanager.
 ## Para destruir tudo
 
 ```bash
-make destroy
+make terraform-destroy
 ```

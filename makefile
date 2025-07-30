@@ -66,7 +66,7 @@ cluster-connect:
 
 # Etapa 4 - Ingress NGINX
 install-ingress: 
-	@helm repo add ingress-nginx https://kubernetes.github.io/helm-charts || true
+	@helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
 	@helm repo update
 	@helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
 		--namespace ingress-nginx \
