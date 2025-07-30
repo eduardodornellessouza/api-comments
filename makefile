@@ -110,5 +110,5 @@ install-app:
 	@echo "✅ Aplicação instalada com sucesso."
 
 # Etapa final - destruir tudo
-#destroy:
-# 	cd $(TERRAFORM_DIR) && terraform destroy -auto-approve
+terraform-destroy:
+	cd $(TERRAFORM_DIR) && terraform destroy -auto-approve

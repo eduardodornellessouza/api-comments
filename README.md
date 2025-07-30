@@ -14,6 +14,26 @@ https://hub.docker.com/repository/docker/eduardods/api-comments/general
 # Acesso da Aplicação para testes
 http://localhost:3000/docs
 
+# Criando a storage account para armazenar o tfstate
+## 1. Criar resource group
+az group create -n terraform-rg -l brazilsouth
+
+## 2. Criar storage account (nome deve ser único globalmente, apenas minúsculas)
+# Substitua por algo exclusivo, como:
+az storage account create \
+  --name tfstateeduardo20250730 \
+  --resource-group terraform-rg \
+  --location brazilsouth \
+  --sku Standard_LRS \
+  --access-tier Hot
+
+
+## 3. Criar container para o estado
+az storage container create \
+  --name tfstate \
+  --account-name tfstateeduardo20250730
+
+
 # Inicio da Criação do Cluster AKS Free Tier
 az login
 az account set --subscription "dae6c8b4-a025-4ed1-85c4-9aed73f7eb6f"
@@ -63,7 +83,8 @@ helm upgrade --install api-comments ./helm/api-comments --namespace apis --creat
 terraform destroy -auto-approve
 
 # Pipeline local para testar a criação e deploy dos recursos
-make build && make terraform-init && make terraform-plan && make terraform-apply
+make build
+make terraform-init && make terraform-plan && make terraform-apply
 make cluster-connect && make install-ingress && make wait-ingress && make install-app
 make install-monitoring && make install-logs
 

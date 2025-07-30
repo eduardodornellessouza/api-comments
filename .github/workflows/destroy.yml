@@ -1,0 +1,36 @@
+name: Destroy Infraestrutura
+
+on:
+  workflow_dispatch:
+
+env:
+  TERRAFORM_DIR: ./terraform
+  RESOURCE_GROUP: rg-api-comments
+  CLUSTER_NAME: api-comments-aks
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: dockerhub
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Login na Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Terraform Init (backend remoto)
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Destroy
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform destroy -auto-approve
