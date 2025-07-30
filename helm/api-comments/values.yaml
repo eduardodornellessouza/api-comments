@@ -1,0 +1,28 @@
+image:
+  repository: eduardods/api-comments
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+  host: api-comments.desafio-globo
+  paths:
+    - path: /swagger(/|$)(.*)
+      pathType: ImplementationSpecific
+    - path: /api(/|$)(.*)
+      pathType: ImplementationSpecific
+    - path: /?(.*)
+      pathType: ImplementationSpecific
+
+auth:
+  token: "eyJhdXRoiOiJDT00tdG9rZW4tOTh4dHZYQW9uWWJSeEFKV3AyNWt0eW5EaE1lVnVkeWsifQ=="
+
+resources: {}

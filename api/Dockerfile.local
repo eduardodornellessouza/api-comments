@@ -1,0 +1,11 @@
+# Dockerfile.local
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+COPY . .
+
+# Instala dependências nativamente para ARM64 sem rebuild
+RUN npm install
+
+EXPOSE 3000
+CMD ["node", "index.js"]

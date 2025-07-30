@@ -1,0 +1,17 @@
+{
+  "name": "api-comments",
+  "version": "1.0.0",
+  "description": "API REST para comentários de matérias com Swagger UI",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "swagger-ui-express": "^4.6.3",
+    "yamljs": "^0.3.0"
+  }
+}

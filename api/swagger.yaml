@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: API de Comentários
+  version: 1.0.0
+  description: API para criação e listagem de comentários por matéria
+
+servers:
+  - url: /
+
+paths:
+  /api/comment/new:
+    post:
+      summary: Criar novo comentário
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - comment
+                - content_id
+              properties:
+                email:
+                  type: string
+                comment:
+                  type: string
+                content_id:
+                  type: integer
+      responses:
+        '201':
+          description: Comentário criado com sucesso
+        '400':
+          description: Campos obrigatórios ausentes
+        '401':
+          description: Token ausente
+        '403':
+          description: Token inválido
+
+  /api/comment/list/{content_id}:
+    get:
+      summary: Listar comentários por ID de matéria
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de comentários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                    comment:
+                      type: string
+                    content_id:
+                      type: integer
+                    created_at:
+                      type: string
+        '401':
+          description: Token ausente
+        '403':
+          description: Token inválido
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []

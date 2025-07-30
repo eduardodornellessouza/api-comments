@@ -1,0 +1,36 @@
+grafana:
+  enabled: true
+  adminPassword: admin
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - grafana.desafio-globo
+    path: /
+    pathType: Prefix
+    tls: []
+
+prometheus:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - prometheus.desafio-globo
+    paths:
+      - /
+    pathType: Prefix
+    tls: []
+
+alertmanager:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - alertmanager.desafio-globo
+    paths:
+      - /
+    pathType: Prefix
+    tls: []
