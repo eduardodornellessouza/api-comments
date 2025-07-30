@@ -1,4 +1,4 @@
-name: Destroy Infraestrutura
+name: Destroy Infraestrutura Pipeline
 
 on:
   workflow_dispatch:
