@@ -18,6 +18,8 @@ jobs:
   cluster:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Lista Arquivos
         run: |
           ls -la
