@@ -6,7 +6,6 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import client from 'prom-client'; // 📊 Prometheus
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,41 +16,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_TOKEN = process.env.API_AUTH_TOKEN || 'default-token';
 
-// Prometheus metrics setup
-const collectDefaultMetrics = client.collectDefaultMetrics;
-collectDefaultMetrics(); // coleta métricas padrão
-
-const httpRequestCounter = new client.Counter({
-  name: 'http_requests_total',
-  help: 'Total de requisições HTTP',
-  labelNames: ['method', 'route', 'status']
-});
-
 app.use(cors());
 app.use(express.json());
 
-// Middleware de log + métricas
+// Middleware de log
 app.use((req, res, next) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   console.log(`📥 ${req.method} ${req.originalUrl} | IP: ${ip}`);
   if (req.method !== 'GET') console.log(`📨 Payload:`, req.body);
-
-  res.on('finish', () => {
-    httpRequestCounter.inc({
-      method: req.method,
-      route: req.route?.path || req.originalUrl,
-      status: res.statusCode
-    });
-  });
-
   next();
 });
 
-// Middleware de autenticação para /api/*
+// Middleware de autenticação apenas para /api/*
 app.use('/api', (req, res, next) => {
   const tokenRecebido = req.headers['authorization'];
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
+  // Logs de debug
   console.log(`🔍 TOKEN esperado: Bearer ${API_TOKEN}`);
   console.log(`📥 Authorization recebido:`, tokenRecebido || '[nenhum]');
 
@@ -68,16 +49,10 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// Swagger UI
+// Swagger UI em / (sem proteção)
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Endpoint de métricas Prometheus
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', client.register.contentType);
-  res.end(await client.register.metrics());
-});
-
-// Banco de dados SQLite
+// Inicializa o banco SQLite
 const db = new sqlite3.Database('./comments.db', (err) => {
   if (err) return console.error(err.message);
   console.log('📦 Banco de dados SQLite conectado.');
@@ -150,5 +125,5 @@ app.get('/api/comment/list/:content_id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 API rodando na porta: ${PORT}`);
+  console.log(`🚀 API rodando na porta ${PORT}`);
 });
