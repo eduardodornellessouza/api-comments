@@ -150,5 +150,5 @@ app.get('/api/comment/list/:content_id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 API rodando na porta ${PORT}`);
+  console.log(`🚀 API rodando na porta - ${PORT}`);
 });
