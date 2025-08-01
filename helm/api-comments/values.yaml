@@ -21,6 +21,8 @@ ingress:
       pathType: ImplementationSpecific
     - path: /?(.*)
       pathType: ImplementationSpecific
+    - path: /metrics
+      pathType: ImplementationSpecific
 
 auth:
   token: "eyJhdXRoiOiJDT00tdG9rZW4tOTh4dHZYQW9uWWJSeEFKV3AyNWt0eW5EaE1lVnVkeWsifQ=="
