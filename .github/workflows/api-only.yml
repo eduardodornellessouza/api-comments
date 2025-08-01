@@ -7,6 +7,15 @@ on:
     paths:
       - 'api/**'
 
+env:
+  IMAGE_NAME: eduardods/api-comments
+  CLUSTER_NAME: api-comments-aks
+  RESOURCE_GROUP: rg-api-comments
+  TERRAFORM_DIR: ./terraform
+  HELM_CHART: ./helm/api-comments
+  HELM_RELEASE: api-comments
+  OBS_NAMESPACE: monitoring
+
 jobs:
   build-api:
     runs-on: ubuntu-latest
